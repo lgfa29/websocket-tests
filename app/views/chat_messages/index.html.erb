@@ -1,0 +1,46 @@
+<div id="chat">
+	<% @messages.each do |m| %>
+		<p class="user-name"><%= m.user %></p>
+		<p class="message">
+			<%= m.message %><br />
+			<span><%= m.created_at %></span>
+		</p>
+	<% end %>
+</div>
+
+<div id="footer">
+	<form action="/chat_messages" method="POST">
+		<label>Message: </label>
+		<input type="text" name="message" id="message" />
+		<button>Send</button>
+	</form>
+</div>
+
+<script type="text/javascript">
+	var pusher = new Pusher('a92bf0db125a3639b1ef');
+	var myChannel = pusher.subscribe('chat-channel');
+
+	myChannel.bind('new-message', function(data) {
+		updateMessages(data)
+	});
+
+	scrollChat();
+	$("#message").focus();
+
+	function updateMessages(data) {
+		var chat = $("#chat");
+		var html = "";
+
+		for (var i = 0; i < data.length; i++) {
+			html += "<p class=\"user-name\">" + data[i].user + "</p><p class=\"message\">" + data[i].message + "<br /><span>" + data[i].created_at + "</span></p>";
+		}
+
+		chat.html(html);
+		scrollChat();
+	}
+
+	function scrollChat() {
+		var chat = $("#chat");
+		chat.scrollTop(chat[0].scrollHeight);
+	}
+</script>
